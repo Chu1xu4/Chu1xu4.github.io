@@ -1,72 +1,123 @@
-/*电子钟字体*/
+/* 电子钟字体 */
 @font-face {
   font-family: 'UnidreamLED';
-  src: url("./UnidreamLED.ttf");
+  src: url("/js/UnidreamLED.ttf");
   font-display: swap;
 }
+
+/* 计时器主样式：更紧凑、居中、字体适配 */
 div#runtime {
-  width: 180px;
-  margin: auto;
+  width: auto; /* 自动适应内容宽度 */
+  max-width: 300px;
+  margin: 0 auto; /* 居中 */
   color: #fff;
-  padding-inline: 5px;
-  border-radius: 10px;
-  background-color: rgba(0,0,0,0.7);
-  font-family: 'UnidreamLED';
+  padding: 6px 8px; /* 缩小内边距 */
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.7);
+  font-family: 'UnidreamLED', monospace;
+  font-size: 14px; /* 缩小字体 */
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.5px;
+  text-align: center;
 }
+
+/* 深色模式 */
 [data-theme="dark"] div#runtime {
   color: #28b4c8;
-  box-shadow: 0 0 5px rgba(28,69,218,0.71);
+  background-color: rgba(0, 0, 0, 0.8);
+  box-shadow: 0 0 4px rgba(28, 69, 218, 0.7);
   animation: flashlight 1s linear infinite alternate;
 }
-/*悬停显示徽标提示语*/
-a.github-badge:hover:before {
-  position: fixed;
-  width: fit-content;
-  margin: auto;
-  left: 0;
-  right: 0;
-  top: 10%;
-  border-radius: 10px;
+
+/* 心跳动画 */
+#heartbeat {
+  animation: heartbeat 1.2s ease-in-out infinite;
+  color: #ff6b6b;
+  margin-left: 4px;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* 信息文字：居中 + 小字号 */
+div#runtime + div {
+  font-size: 12px;
+  color: #ccc;
   text-align: center;
+  margin-top: 6px;
+  line-height: 1.4;
+  word-break: break-all;
+}
+
+/* 状态图标：左对齐，与计时器对齐 */
+img.boardsign {
+  display: block;
+  margin: 0 auto 6px auto;
+  width: auto;
+  height: 20px;
+  max-width: 200px;
+}
+
+/* 徽标容器：仍然在最下面，一行居中 */
+#ghbdages {
+  width: 100%;
+  text-align: center;
+  margin-top: 16px;
+  padding: 0;
+}
+
+.github-badge {
+  display: inline-block;
+  margin: 0 4px;
+  border-radius: 4px;
+  transition: transform 0.2s ease;
+}
+
+.github-badge:hover {
+  transform: translateY(-2px);
+}
+
+/* 悬停提示语 */
+a.github-badge:hover::before {
+  position: fixed;
+  width: max-content;
+  left: 50%;
+  top: 10%;
+  transform: translateX(-50%);
   z-index: 100;
   content: attr(data-title);
-  font-size: 20px;
+  font-size: 14px;
   color: #fff;
-  padding: 10px;
+  padding: 8px 12px;
   background-color: var(--text-bg-hover);
+  border-radius: 6px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
-[data-theme=dark] a.github-badge:hover:before {
-  background-color: rgba(18,18,18,0.8);
+
+[data-theme="dark"] a.github-badge:hover::before {
+  background-color: rgba(18, 18, 18, 0.9);
 }
-@-moz-keyframes flashlight {
-  from {
-    box-shadow: 0 0 5px #1478d2;
-  }
-  to {
-    box-shadow: 0 0 2px #1478d2;
-  }
-}
-@-webkit-keyframes flashlight {
-  from {
-    box-shadow: 0 0 5px #1478d2;
-  }
-  to {
-    box-shadow: 0 0 2px #1478d2;
-  }
-}
-@-o-keyframes flashlight {
-  from {
-    box-shadow: 0 0 5px #1478d2;
-  }
-  to {
-    box-shadow: 0 0 2px #1478d2;
-  }
-}
+
+/* 闪光动画 */
 @keyframes flashlight {
-  from {
-    box-shadow: 0 0 5px #1478d2;
+  from { box-shadow: 0 0 5px #1478d2; }
+  to { box-shadow: 0 0 2px #1478d2; }
+}
+
+/* 响应式：小屏幕调整 */
+@media (max-width: 768px) {
+  div#runtime {
+    font-size: 12px;
+    padding: 5px 6px;
   }
-  to {
-    box-shadow: 0 0 2px #1478d2;
+  div#runtime + div {
+    font-size: 11px;
+  }
+  img.boardsign {
+    height: 16px;
   }
 }
