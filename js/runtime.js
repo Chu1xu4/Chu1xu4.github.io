@@ -1,118 +1,50 @@
-function updateRuntime() {
-  // 建站时间
-  let create_time = Math.round(new Date('2024/11/29 17:38:00').getTime() / 1000);
-  let timestamp = Math.round((new Date().getTime()) / 1000);
-  let second = timestamp - create_time;
-  let time = [0, 0, 0, 0, 0]; // 年、天、小时、分钟、秒
+var now = new Date();
 
-  const nol = function(h) {
-    return h > 9 ? h : '0' + h;
-  };
+function createtime() {
+  now.setTime(now.getTime() + 1000);
+  var start = new Date("10/01/2025 00:00:00"); // 旅行者1号开始时间
+  var dis = Math.trunc(23400000000 + ((now - start) / 1000) * 17);
+  var unit = (dis / 149600000).toFixed(6);
+  var grt = new Date("10/1/2025 00:00:00"); // 网站诞生时间
+  var days = (now - grt) / 1e3 / 60 / 60 / 24,
+    dnum = Math.floor(days),
+    hours = (now - grt) / 1e3 / 60 / 60 - 24 * dnum,
+    hnum = Math.floor(hours);
+  if (String(hnum).length === 1) hnum = "0" + hnum;
 
-  if (second >= 365 * 24 * 3600) {
-    time[0] = parseInt(second / (365 * 24 * 3600));
-    second %= 365 * 24 * 3600;
-  }
-  if (second >= 24 * 3600) {
-    time[1] = parseInt(second / (24 * 3600));
-    second %= 24 * 3600;
-  }
-  if (second >= 3600) {
-    time[2] = nol(parseInt(second / 3600));
-    second %= 3600;
-  }
-  if (second >= 60) {
-    time[3] = nol(parseInt(second / 60));
-    second %= 60;
-  }
-  if (second > 0) {
-    time[4] = nol(second);
-  }
+  var minutes = (now - grt) / 1e3 / 60 - 1440 * dnum - 60 * hnum,
+    mnum = Math.floor(minutes);
+  if (String(mnum).length === 1) mnum = "0" + mnum;
 
-  // 当前时间计算
-  let now = new Date();
-  let e = new Date('2024/11/29 17:38:00');
-  let t = Math.trunc(234e8 + (now - e) / 1e3 * 17);
-  let a = (t / 1496e5).toFixed(6);
-  let o = new Date('2024/11/29 17:38:00');
-  let n = (now - o) / 1e3 / 60 / 60 / 24;
-  let r = Math.floor(n);
-  let i = (now - o) / 1e3 / 60 / 60 - 24 * r;
-  let s = Math.floor(i);
-  if (String(s).length === 1) s = "0" + s;
-  let d = (now - o) / 1e3 / 60 - 1440 * r - 60 * s;
-  let l = Math.floor(d);
-  if (String(l).length === 1) l = "0" + l;
-  let g = (now - o) / 1e3 - 86400 * r - 3600 * s - 60 * l;
-  let b = Math.round(g);
-  if (String(b).length === 1) b = "0" + b;
+  var seconds = (now - grt) / 1e3 - 86400 * dnum - 3600 * hnum - 60 * mnum,
+    snum = Math.round(seconds);
+  if (String(snum).length === 1) snum = "0" + snum;
 
-  // 判断营业状态
-  const hour = now.getHours();
-  const isWorking = hour >= 7 && hour < 22;
+  // 使用更干净的 HTML 结构
+  let statusImg = (hnum >= 9 && hnum < 18)
+    ? 'https://sourcebucket.s3.ladydaily.com/badge/F小屋-科研摸鱼中.svg'
+    : 'https://sourcebucket.s3.ladydaily.com/badge/F小屋-下班休息啦.svg';
 
-  const statusImg = isWorking
-    ? 'https://img.shields.io/badge/蟹堡王餐厅-营业中-6adea8?style=social&logo=cakephp'
-    : 'https://img.shields.io/badge/蟹堡王餐厅-打烊了-6adea8?style=social&logo=coffeescript';
-  const statusTitle = isWorking ? '距离百年老店也就差不到一百年~' : '这个点了应该去睡觉啦，熬夜对身体不好哦';
+  let titleText = (hnum >= 9 && hnum < 18)
+    ? '什么时候能够实现财富自由呀~'
+    : '下班了就该开开心心地玩耍~';
 
-  const currentTimeHtml = `
-    <img class="boardsign" src="${statusImg}" title="${statusTitle}" alt="status">
-    <div id="runtime">${time[0]} YEAR ${time[1]} DAYS ${time[2]} : ${time[3]} : ${time[4]}</div>
-    <div style="font-size:12px;color:#ccc;text-align:center;margin-top:6px;">
-      本站居然运行了 ${r} 天 ${s} 小时 ${l} 分 ${b} 秒 
-      <i id="heartbeat" class="fas fa-heartbeat"></i>
+  let currentTimeHtml = `
+    <img class='boardsign' src='${statusImg}' title='${titleText}' alt='status'>
+    <div style="font-size:13px;font-weight:bold;line-height:1.5">
+      本站居然运行了 ${dnum} 天 ${hnum} 小时 ${mnum} 分 ${snum} 秒 
+      <i id="heartbeat" class='fas fa-heartbeat' style="color:#ff6b6b"></i>
       <br>
-      旅行者 1 号当前距离地球 ${t.toLocaleString()} 千米，约为 ${a} 个天文单位 🚀
+      旅行者 1 号当前距离地球 ${dis.toLocaleString()} 千米，约为 ${unit} 个天文单位 🚀
     </div>
   `;
 
-  // 获取 footer 容器
-  const footer = document.getElementById('footer');
-  if (!footer) return;
-
-  // 创建或获取 workboard 容器
-  let workboard = document.getElementById('workboard');
-  if (!workboard) {
-    workboard = document.createElement('div');
-    workboard.id = 'workboard';
-    workboard.style.width = '100%';
-    workboard.style.textAlign = 'center';
-    workboard.style.marginTop = '10px';
-  }
-
-  workboard.innerHTML = currentTimeHtml;
-
-  // 插入到 footer 最前面（确保在顶部）
-  if (footer.firstChild && footer.firstChild !== workboard) {
-    footer.insertBefore(workboard, footer.firstChild);
-  } else {
-    footer.appendChild(workboard);
-  }
-
-  // 徽标容器
-  let badgeContainer = document.getElementById('ghbdages');
-  if (!badgeContainer) {
-    badgeContainer = document.createElement('div');
-    badgeContainer.id = 'ghbdages';
-    badgeContainer.style.textAlign = 'center';
-    badgeContainer.style.marginTop = '12px';
-  }
-
-  if (!footer.contains(badgeContainer)) {
-    footer.appendChild(badgeContainer);
+  // 确保 DOM 存在
+  const workboard = document.getElementById("workboard");
+  if (workboard) {
+    workboard.innerHTML = currentTimeHtml;
   }
 }
-
-// 初始化
-updateRuntime();
 
 // 每秒更新
-setInterval(updateRuntime, 1000);
-
-// 防抖函数（备用）
-let TT = null;
-function debounce(fn, time) {
-  if (TT !== null) clearTimeout(TT);
-  TT = setTimeout(fn, time);
-}
+setInterval(createtime, 1000);
