@@ -6,7 +6,7 @@
   <link href="https://www.q3qc1n.cn/atom.xml" rel="self"/>
   
   <link href="https://www.q3qc1n.cn/"/>
-  <updated>2025-10-03T05:25:00.057Z</updated>
+  <updated>2025-10-03T10:47:03.381Z</updated>
   <id>https://www.q3qc1n.cn/</id>
   
   <author>
@@ -21,8 +21,10 @@
     <link href="https://www.q3qc1n.cn/posts/39c3.html"/>
     <id>https://www.q3qc1n.cn/posts/39c3.html</id>
     <published>2025-10-03T05:24:15.000Z</published>
-    <updated>2025-10-03T05:25:00.057Z</updated>
+    <updated>2025-10-03T10:47:03.381Z</updated>
     
+    
+    <summary type="html">这里是我的博客。</summary>
     
     
     
@@ -105,9 +107,17 @@
     <title>黄鹤杯实景攻防赛道初赛WP</title>
     <link href="https://www.q3qc1n.cn/posts/118e.html"/>
     <id>https://www.q3qc1n.cn/posts/118e.html</id>
-    <published>2025-10-03T05:08:30.000Z</published>
-    <updated>2025-10-03T05:11:45.084Z</updated>
+    <published>2025-10-03T05:08:30.056Z</published>
+    <updated>2025-10-04T03:02:05.074Z</updated>
     
+    <content type="html"><![CDATA[<p><h1>黄鹤杯实景攻防赛道初赛WP</h1><br><strong>先看看这次比赛的战绩，一共十道题目，完成了六道，基本都是考察流量分析，涉及比较对一些工控流量，剩下四道题基本就很少人解出来了。总的来说这次题目不难。</strong></p><p><img src="/img/黄鹤杯/1.png"></p><h1 id="Misc"><a href="#Misc" class="headerlink" title="Misc"></a>Misc</h1><h2 id="笑哭了"><a href="#笑哭了" class="headerlink" title="笑哭了"></a>笑哭了</h2><h3 id="解题思路"><a href="#解题思路" class="headerlink" title="解题思路:"></a>解题思路:</h3><p>拿到流量包，审计http流量，发现一个上传的flag.jpg文件，保存原始数据。</p><p><img src="/img/黄鹤杯/2.png"><br><img src="/img/黄鹤杯/3.png"></p><p>拿到一个图片，010打开观察到藏了一个zip，手动分离或者binwalk、foremost提取都行。<br>解压得到flag.txt里的flag。</p><p><img src="/img/黄鹤杯/4.png"></p><p>拿到flag<br>flag{6ba2f9b4bef73b19f0aadcd7210fde16}</p><h1 id="物联网"><a href="#物联网" class="headerlink" title="物联网"></a>物联网</h1><h2 id="ezmqtt"><a href="#ezmqtt" class="headerlink" title="ezmqtt"></a>ezmqtt</h2><h3 id="解题思路-1"><a href="#解题思路-1" class="headerlink" title="解题思路:"></a>解题思路:</h3><p>看到题目，考察的是mqtt协议，mqtt协议是很常见的轻量级的物联网通信协议。<br>直接筛选mqtt协议，拿到两端base64，拼接在一起直接解base64就行了，说是考mqtt协议，但是格外的简单。</p><p><img src="/img/黄鹤杯/5.png"><br><img src="/img/黄鹤杯/6.png"></p><p>flag{5ef03194ae4c2bbe1ad37a7253542a28}</p><h1 id="工控"><a href="#工控" class="headerlink" title="工控"></a>工控</h1><h2 id="增材制造"><a href="#增材制造" class="headerlink" title="增材制造"></a>增材制造</h2><h3 id="解题思路-2"><a href="#解题思路-2" class="headerlink" title="解题思路:"></a>解题思路:</h3><p>拿到png图片，第一步修改宽高，用随波逐流一把梭就行，010手动修改也行。</p><p><img src="/img/黄鹤杯/7.png"></p><p>根据做题经验看着像掩码攻击，发现从png还能分离出zip压缩文件，估计方向是没错了，掩码爆破一下拿到压缩包密码。</p><p><img src="/img/黄鹤杯/8.png"></p><p>解压得到DDD文件刚开始不知道把内容复制给ai识别一下，发现是3D打印机的打印数据（然后才发现文件名也是提示），直接用在线网站还原。<br><a href="https://gcode.ws">https://gcode.ws</a></p><p>上传该文件，会还原出打印的flag。</p><p><img src="/img/黄鹤杯/9.png"></p><p>用3D预览，可以调整视角看到完整flag<br>flag{we1c0me_to_miit}</p><h2 id="工控流量分析"><a href="#工控流量分析" class="headerlink" title="工控流量分析"></a>工控流量分析</h2><h3 id="解题思路-3"><a href="#解题思路-3" class="headerlink" title="解题思路:"></a>解题思路:</h3><p>打开流量包，看到西门子通信协议S7COMM，直接追踪tcp流，看到一个db开头的明文字符串，不会就是flag吧？还真是。一千分的题没想象中的刁钻。</p><p><img src="/img/黄鹤杯/10.png"></p><p>flag{dbd9195fe5ea9d488724ecb90f118e14}</p><h2 id="组件分析"><a href="#组件分析" class="headerlink" title="组件分析"></a>组件分析</h2><h3 id="解题思路-4"><a href="#解题思路-4" class="headerlink" title="解题思路:"></a>解题思路:</h3><p>这道题起初以为很难，需要分析固件，但是随着解出题的人数越来越多感觉不对劲，来来回回看了好几遍才出。</p><p>刚开始把全部文件strings一个一个看啥也没有，后面把所有文件都放到010一个一个看，终于找点点不一样的，Zmxh，flag base64后的字符串，完整提取出来解base64，拿下最后一千分。</p><p><img src="/img/黄鹤杯/11.png"></p><p><img src="/img/黄鹤杯/12.png"></p><p>ZmxhZ3trMW5nXzBmX3NjYWRhfQ=?<br>flag{k1ng_0f_scada}</p><h1 id="大数据"><a href="#大数据" class="headerlink" title="大数据"></a>大数据</h1><h2 id="大数据下的隐私攻防"><a href="#大数据下的隐私攻防" class="headerlink" title="大数据下的隐私攻防"></a>大数据下的隐私攻防</h2><h3 id="解题思路-5"><a href="#解题思路-5" class="headerlink" title="解题思路:"></a>解题思路:</h3><p>题目名有点唬人，其实就是一个数据分析题。</p><p>拿到一个描述题目的txt文件，还有两个表格，目的是从大表格里找到小表格里的任务信息，拿到他们的阳阴性信息，简单来说应该就是信息匹配。我尝试通过脚本和ai筛选可能都有一两个不对，后面人工审计，修正了几个错误，得到<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">flag&#123;隐性, 隐性, 隐性, 隐性, 隐性, 阳性, 隐性, 隐性, 隐性, 隐性, 阳性, 阳性, 隐性, 隐性, 隐性, 隐性, 阳性, 阳性, 隐性, 阳性, 阳性, 隐性, 阳性, 隐性, 阳性, 阳性, 阳性, 阳性, 隐性, 隐性, 阳性, 隐性, 隐性, 隐性, 阳性, 隐性, 隐性, 阳性, 阳性, 阳性&#125;<br></code></pre></td></tr></table></figure></p><p><img src="/img/黄鹤杯/13.png"></p><p>md5后再用flag{}包裹,提交flag{7ef25f31a98f9e86c8827e243dac9916}</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;&lt;h1&gt;黄鹤杯实景攻防赛道初赛WP&lt;/h1&gt;&lt;br&gt;&lt;strong&gt;先看看这次比赛的战绩，一共十道题目，完成了六道，基本都是考察流量分析，涉及比较对一些工控流量，剩下四道题基本就很少人解出来了。总的来说这次题目不难。&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/i</summary>
+      
     
     
     
