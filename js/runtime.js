@@ -20,17 +20,8 @@ function createtime() {
     snum = Math.round(seconds);
   if (String(snum).length === 1) snum = "0" + snum;
 
-  // 使用更干净的 HTML 结构
-  // let statusImg = (hnum >= 9 && hnum < 18)
-  //   ? 'https://sourcebucket.s3.ladydaily.com/badge/F小屋-科研摸鱼中.svg'
-  //   : 'https://sourcebucket.s3.ladydaily.com/badge/F小屋-下班休息啦.svg';
-
-  // let titleText = (hnum >= 9 && hnum < 18)
-  //   ? '什么时候能够实现财富自由呀~'
-  //   : '下班了就该开开心心地玩耍~';
-
+  // 不再使用 statusImg 和 titleText
   let currentTimeHtml = `
-    <img class='boardsign' src='${statusImg}' title='${titleText}' alt='status'>
     <div style="font-size:13px;font-weight:bold;line-height:1.5">
       本站居然运行了 ${dnum} 天 ${hnum} 小时 ${mnum} 分 ${snum} 秒 
       <i id="heartbeat" class='fas fa-heartbeat' style="color:#ff6b6b"></i>
