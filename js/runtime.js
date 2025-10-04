@@ -21,13 +21,13 @@ function createtime() {
   if (String(snum).length === 1) snum = "0" + snum;
 
   // 使用更干净的 HTML 结构
-  let statusImg = (hnum >= 9 && hnum < 18)
-    ? 'https://sourcebucket.s3.ladydaily.com/badge/F小屋-科研摸鱼中.svg'
-    : 'https://sourcebucket.s3.ladydaily.com/badge/F小屋-下班休息啦.svg';
+  // let statusImg = (hnum >= 9 && hnum < 18)
+  //   ? 'https://sourcebucket.s3.ladydaily.com/badge/F小屋-科研摸鱼中.svg'
+  //   : 'https://sourcebucket.s3.ladydaily.com/badge/F小屋-下班休息啦.svg';
 
-  let titleText = (hnum >= 9 && hnum < 18)
-    ? '什么时候能够实现财富自由呀~'
-    : '下班了就该开开心心地玩耍~';
+  // let titleText = (hnum >= 9 && hnum < 18)
+  //   ? '什么时候能够实现财富自由呀~'
+  //   : '下班了就该开开心心地玩耍~';
 
   let currentTimeHtml = `
     <img class='boardsign' src='${statusImg}' title='${titleText}' alt='status'>
