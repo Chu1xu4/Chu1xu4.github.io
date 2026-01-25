@@ -6,7 +6,7 @@
   <link href="https://www.q3qc1n.cn/atom.xml" rel="self"/>
   
   <link href="https://www.q3qc1n.cn/"/>
-  <updated>2026-01-14T05:35:36.790Z</updated>
+  <updated>2026-01-25T07:11:46.280Z</updated>
   <id>https://www.q3qc1n.cn/</id>
   
   <author>
@@ -15,6 +15,36 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>车联网安全入门(2)——从UDS的视角理解CAN</title>
+    <link href="https://www.q3qc1n.cn/posts/be71.html"/>
+    <id>https://www.q3qc1n.cn/posts/be71.html</id>
+    <published>2026-01-22T02:13:33.000Z</published>
+    <updated>2026-01-25T07:11:46.280Z</updated>
+    
+    <content type="html"><![CDATA[<h1>车联网安全入门(2)——从UDS的视角理解CAN</h1><p>读完第一篇文章后，我们会思考，为什么我们看到的can日志中的报文会有一个canid，为什么是三位十六进制数，为什么只能传输八位数据？<br>我们前面提到，UDS协议是基于can的，这就是核心原因，UDS 是应用层协议，运行在经典 CAN 之上。</p><p><strong>经典 CAN 的物理限制：</strong><br>    1、每帧最多 8 字节有效数据<br>    2、这是 硬件+协议栈硬性规定（从 1986 年 Bosch CAN 1.0 开始）</p><p>这时候又引出一个问题，那当我们需要发送超过八个字节的数据时该怎么办，两个新的概念可以实现这个目的——“多帧传输”和“灵活CAN”，多帧传输是一种传输方式，而灵活CAN是和经典CAN一样都包含在CAN协议里的。</p><h1 id="帧"><a href="#帧" class="headerlink" title="帧"></a>帧</h1><p>物理层把模拟信号转换成数字信号传给数据链路层，帧可以看作是数据链路层控制的协议数据单元(Protocol Data Unit, PDU)，每层PDU的叫法都不一样。<strong>物理层称作位(bit)，网络层称作包(packet)，应用层称作报文(message)。</strong></p><p>CAN节点之间数据的发送和接收由4种不同的帧掌控：<br>    ● 数据帧(Data Frame, DF) 携带从发送节点至接收节点的数据<br>    ● 远程帧(Remote Frame, RF) 向其他节点请求发送具有同一标识符的数据帧<br>    ● 错误帧(Error Frame, EF) 节点检测到错误后发送错误帧<br>    ● 超载帧(Overload Frame, OF) 在先行的和后续的数据帧（或远程帧）之间附加一段延时<br>数据帧和远程帧通过帧间空间(interframe space)与上一帧（不论类型）分开，错误帧和超载帧则不用通过帧间空间与上一帧分开。 </p><p><img src="/img/车联网安全入门(2)/2.png"></p><p> 帧间空间（interframe space）包括分隔域（Intermission）和总线空闲(bus idle)，分隔域由三个隐性电位组成，总线上没有帧被传输的时是空闲状态，这时候总线处于静电位，也就是隐态(1)，可以任意长度。</p><p><strong>这里我们只详细介绍数据帧。</strong></p><h2 id="CAN的数据帧"><a href="#CAN的数据帧" class="headerlink" title="CAN的数据帧"></a>CAN的数据帧</h2><p><strong>为了理解经典CAN为什么只能传输八字节有效数据以及CANID为什么只由0x000到0x7FF，我们就需要看ISO11898(CAN协议)中是如何规定的。</strong></p><p>CAN协议包括经典CAN和新推出的CAN FD(CAN with Flexible Data rate)。 经典CAN即CAN 2.0，由博世在1991年推出，A/B(part A and part B)。CAN FD由博世和其他专家在2011年推出，又叫灵活CAN。A部分和B部分分别规范了两种帧格式：标准帧和扩展帧。因此数据帧可以分为4种：<br>● 经典CAN的标准数据帧(Classical Base Frame Format, CBFF)<br>● 经典CAN的扩展数据帧(Classical Extended Frame Format, CEFF)<br>● 灵活CAN的标准数据帧(FD Base Frame Format, FDFF)<br>● 灵活CAN的扩展数据帧(FD Extended Frame Format, FEFF)</p><p>CAN数据帧大体结构如下：<br><img src="/img/车联网安全入门(2)/1.gif"></p><p>主要由8个部分组成:<br>    ● 帧头SOF（Start-of-frame）<br>    ● 仲裁域（Arbitration field）<br>    ● 控制域（Control field）<br>    ● 数据域（Data field）<br>    ● 校验域（CRC field）<br>    ● 应答域（Acknowledgement field）<br>    ● 帧尾（End-of-frame field）<br>    ● 分隔域（Intermission field）</p><p>八个部分分别看有点难以理解，我们可以把整个CAN数据帧(CAN data frame)看成三个部分：</p><pre><code>第一部分我们只需要看包含在仲裁域（Arbitration field）里的报文ID，也叫仲裁ID（Message identifier），这个就是我们在真是UDS传输中看到的CANID，在经典CAN的标准数据帧中规定了为11位二进制，所以我们在CAN日志中看到的CANID都是三位十六进制位，最大是7FF。第二部分就是数据帧中的数据域（Data field），在图中可以看到，数据规定了只能传输0~    8个字节（byte），这也是为什么我们在UDS报文中只能传输或者接受八个字节的数据。第三个部分就是在数据域后面的校验域、应答域、帧尾、分隔域等，这些暂时可以不用理解，就把它看成必要的格式以及校验数据真实性和完整性的字段即可。</code></pre><p><img src="/img/车联网安全入门(2)/1.png"></p><p><img src="/img/车联网安全入门(2)/12.png"></p><p>在图中我们可以看到，扩展帧比标准的的11位ID多了一个18位的Extended ID，因此扩展帧的CANID一种是29位，转化成十六进制最高就是8位，即0x1FFFFFFF。</p><p>CAN的有效载荷为8字节，传输速率1Mb/s。CAN FD(CAN with Flexible Data-Rate)有效载荷可以大于8字节，最高64字节，因此传输速率可达8Mb/s。 也就是说，在CAN FD的标准帧和扩展帧的数据域（Data Field）增加到了64个字节，因此如果发送的是CAN FD帧，那我们就可以传输最大64个字节数据。<br><strong>简单来说用CAN FD可以比经典CAN传输的更快，一次传输的数据更多。</strong></p><h1 id="传输方式"><a href="#传输方式" class="headerlink" title="传输方式"></a>传输方式</h1><h2 id="单帧传输"><a href="#单帧传输" class="headerlink" title="单帧传输"></a>单帧传输</h2><p>我们在上一篇文章中可以看到，我们的报文都是一帧一阵传输，并且每一帧只能传输八个字节的数据。<br>前面我们学习UDS服务是在ISO14229-1中规定了，并且只规定了26个服务以及服务每个字节的含义，但是它并不关心底层是如何传输的。<strong>而ISO15765-2(也就是常说的 ISO-TP，传输层协议)就规定了基于CAN总线进行UDS报文传输的细节。</strong></p><p><img src="/img/车联网安全入门(2)/3.png"></p><p>由于经典CAN规定数据域最大只能为八个字节，因此如果一帧CAN报文容纳得下，我们使用单帧（Single Frame）传输即可，由发送方直接发给接收方，可以直接用cansend一帧一帧的发送数据，例如：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">cansend can0 603#0210030000000000<br></code></pre></td></tr></table></figure></p><p><img src="/img/车联网安全入门(2)/4.png"></p><p>首个字节的第一位为0代表发送的是单帧。</p><h2 id="多帧传输"><a href="#多帧传输" class="headerlink" title="多帧传输"></a>多帧传输</h2><p>当我们想要传输的数据大于八个字节，一帧CAN报文容纳不下的时候，就需要使用到多帧传输了，比如一些刷写固件的场景。<br><img src="/img/车联网安全入门(2)/6.png"></p><p>多帧传输的流程如下：<br><img src="/img/车联网安全入门(2)/5.png"></p><p>首帧（FF）：首帧是多帧通信中发出的第一个帧。其中第一个字节的高4位为1，第一个字节的低四位和第二个字节一起表示整个多帧通信中需要多少个字节才能将要通信的内容表达清楚。</p><p> 流控帧（FC）：为了保证发送方发出的数据可以被接收方正确接收，因此需要通过UDS流控帧告知发送方，接收侧的数据处理能力。</p><p> 连续帧（CF）：续帧是通信中首帧后表示数据内容的帧。它的第一字节高4位为2，低4位为帧的序号，从1开始，增长到0xF后重新从1开始。</p><p><img src="/img/车联网安全入门(2)/7.png"></p><h3 id="流控帧详解"><a href="#流控帧详解" class="headerlink" title="流控帧详解"></a>流控帧详解</h3><p>流控帧是一帧接收方发送给发送方的报文。<br>流控帧的3个控制字节：第一个字节的高4位为3代表为流控帧，低4位代表流状态（FS）。</p><p><img src="/img/车联网安全入门(2)/8.png"></p><p>第2个字节代表块大小：</p><p><img src="/img/车联网安全入门(2)/9.png"><br>如果BS为00，则表示不限制发送方发送的数据长度，允许一次性发送完</p><p>第3个字节为最小间隔时间：两条发送帧之间的最小时间间隔。当STmin=0时，表示发送方可以不用等待，连续发送数据。  00-7F为毫秒，F1-F9为100-900微秒<br><img src="/img/车联网安全入门(2)/10.png"></p><p>各种帧的控制信息总结如下：  </p><p><img src="/img/车联网安全入门(2)/11.png"></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1&gt;车联网安全入门(2)——从UDS的视角理解CAN&lt;/h1&gt;
+
+&lt;p&gt;读完第一篇文章后，我们会思考，为什么我们看到的can日志中的报文会有一个canid，为什么是三位十六进制数，为什么只能传输八位数据？&lt;br&gt;我们前面提到，UDS协议是基于can的，这就是核心原因，UDS </summary>
+      
+    
+    
+    
+    <category term="杂谈教程" scheme="https://www.q3qc1n.cn/categories/%E6%9D%82%E8%B0%88%E6%95%99%E7%A8%8B/"/>
+    
+    
+    <category term="车联网安全" scheme="https://www.q3qc1n.cn/tags/%E8%BD%A6%E8%81%94%E7%BD%91%E5%AE%89%E5%85%A8/"/>
+    
+    <category term="UDS" scheme="https://www.q3qc1n.cn/tags/UDS/"/>
+    
+    <category term="CAN" scheme="https://www.q3qc1n.cn/tags/CAN/"/>
+    
+  </entry>
   
   <entry>
     <title>车联网安全入门(1)——UDS服务学习</title>
